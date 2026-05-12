@@ -1,6 +1,7 @@
 using Godot;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Modding;
+using MegaCrit.Sts2.Core.Saves;
 
 namespace CardStatsOverlay.CardStatsOverlayCode;
 
@@ -14,9 +15,6 @@ public partial class MainFile : Node
     {
         try
         {
-            StatsTracker.Load();
-            GD.Print("[CardStatsOverlay] Stats loaded!");
-
             Harmony harmony = new(ModId);
             harmony.PatchAll();
             GD.Print("[CardStatsOverlay] Harmony patches applied!");

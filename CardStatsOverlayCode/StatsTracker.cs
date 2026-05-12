@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using Godot;
+using MegaCrit.Sts2.Core.Saves;
 
 namespace CardStatsOverlay.CardStatsOverlayCode;
 
@@ -15,33 +17,62 @@ public class CardStats
     public float WinRate => RunsCompleted == 0 ? 0f : (float)RunsWon / RunsCompleted;
 }
 
+public class SaveData
+{
+    public Dictionary<string, CardStats> Stats { get; set; } = new();
+    public HashSet<string> PickedThisRun { get; set; } = new();
+}
+
 public static class StatsTracker
 {
-    private static readonly string SavePath = Path.Combine(
-        System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData),
-        "SlayTheSpire2", "card_stats_overlay.json"
-    );
+    private static string GetSavePath()
+    {
+        int profileId = SaveManager.Instance?.CurrentProfileId ?? 1;
+        return Path.Combine(
+            System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData),
+            "SlayTheSpire2", $"card_stats_overlay_profile{profileId}.json"
+        );
+    }
 
     public static Dictionary<string, CardStats> Stats { get; private set; } = new();
-    private static readonly HashSet<string> PickedThisRun = new();
+    private static HashSet<string> PickedThisRun = new();
 
     public static void Load()
     {
-        if (!File.Exists(SavePath))
+        Stats = new();
+        PickedThisRun = new();
+
+        string savePath = GetSavePath();
+        if (!File.Exists(savePath))
         {
-            MainFile.Logger.Info("No stats file found, starting fresh.");
+            GD.Print($"[CardStatsOverlay] No stats file found for profile {SaveManager.Instance?.CurrentProfileId ?? 1}, starting fresh.");
             return;
         }
         try
         {
-            string json = File.ReadAllText(SavePath);
-            Stats = JsonSerializer.Deserialize<Dictionary<string, CardStats>>(json) ?? new();
-            MainFile.Logger.Info($"Loaded stats for {Stats.Count} cards.");
+            string json = File.ReadAllText(savePath);
+
+            var saveData = JsonSerializer.Deserialize<SaveData>(json);
+            if (saveData?.Stats != null)
+            {
+                Stats = saveData.Stats;
+                PickedThisRun = saveData.PickedThisRun ?? new();
+                GD.Print($"[CardStatsOverlay] Loaded stats for {Stats.Count} cards, {PickedThisRun.Count} cards picked this run.");
+                return;
+            }
+
+            var oldStats = JsonSerializer.Deserialize<Dictionary<string, CardStats>>(json);
+            if (oldStats != null)
+            {
+                Stats = oldStats;
+                GD.Print($"[CardStatsOverlay] Loaded stats (old format) for {Stats.Count} cards.");
+            }
         }
         catch (System.Exception e)
         {
-            MainFile.Logger.Info($"Failed to load stats: {e.Message}");
+            GD.Print($"[CardStatsOverlay] Failed to load stats: {e.Message}");
             Stats = new();
+            PickedThisRun = new();
         }
     }
 
@@ -49,12 +80,17 @@ public static class StatsTracker
     {
         try
         {
-            string json = JsonSerializer.Serialize(Stats, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(SavePath, json);
+            var saveData = new SaveData
+            {
+                Stats = Stats,
+                PickedThisRun = PickedThisRun
+            };
+            string json = JsonSerializer.Serialize(saveData, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(GetSavePath(), json);
         }
         catch (System.Exception e)
         {
-            MainFile.Logger.Info($"Failed to save stats: {e.Message}");
+            GD.Print($"[CardStatsOverlay] Failed to save stats: {e.Message}");
         }
     }
 
