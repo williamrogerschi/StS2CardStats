@@ -10,6 +10,13 @@ public static class RunEndPatch
 {
     public static void Postfix(RunState runState, SerializableRun serializableRun)
     {
+        var history = RunManager.Instance?.History;
+        if (history?.WasAbandoned ?? false)
+        {
+            StatsTracker.ClearRun();
+            return;
+        }
+
         bool won = runState.CurrentRoom?.IsVictoryRoom ?? false;
         StatsTracker.OnRunEnded(won);
     }

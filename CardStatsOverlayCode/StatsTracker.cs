@@ -21,6 +21,7 @@ public class SaveData
 {
     public Dictionary<string, CardStats> Stats { get; set; } = new();
     public HashSet<string> PickedThisRun { get; set; } = new();
+    public List<string> OfferedThisRun { get; set; } = new();
 }
 
 public static class StatsTracker
@@ -36,11 +37,13 @@ public static class StatsTracker
 
     public static Dictionary<string, CardStats> Stats { get; private set; } = new();
     private static HashSet<string> PickedThisRun = new();
+    private static List<string> OfferedThisRun = new();
 
     public static void Load()
     {
         Stats = new();
         PickedThisRun = new();
+        OfferedThisRun = new();
 
         string savePath = GetSavePath();
         if (!File.Exists(savePath))
@@ -57,6 +60,7 @@ public static class StatsTracker
             {
                 Stats = saveData.Stats;
                 PickedThisRun = saveData.PickedThisRun ?? new();
+                OfferedThisRun = saveData.OfferedThisRun ?? new();
                 GD.Print($"[CardStatsOverlay] Loaded stats for {Stats.Count} cards, {PickedThisRun.Count} cards picked this run.");
                 return;
             }
@@ -73,6 +77,7 @@ public static class StatsTracker
             GD.Print($"[CardStatsOverlay] Failed to load stats: {e.Message}");
             Stats = new();
             PickedThisRun = new();
+            OfferedThisRun = new();
         }
     }
 
@@ -83,7 +88,8 @@ public static class StatsTracker
             var saveData = new SaveData
             {
                 Stats = Stats,
-                PickedThisRun = PickedThisRun
+                PickedThisRun = PickedThisRun,
+                OfferedThisRun = OfferedThisRun
             };
             string json = JsonSerializer.Serialize(saveData, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(GetSavePath(), json);
@@ -107,12 +113,16 @@ public static class StatsTracker
     public static void OnCardOffered(string cardId)
     {
         GetOrCreate(cardId).Offered++;
+        OfferedThisRun.Add(cardId);
         Save();
     }
 
     public static void OnCardPicked(string cardId)
     {
-        GetOrCreate(cardId).Picked++;
+        if (!PickedThisRun.Contains(cardId))
+        {
+            GetOrCreate(cardId).Picked++;
+        }
         PickedThisRun.Add(cardId);
         Save();
     }
@@ -126,6 +136,25 @@ public static class StatsTracker
             if (won) stats.RunsWon++;
         }
         PickedThisRun.Clear();
+        OfferedThisRun.Clear();
+        Save();
+    }
+
+    public static void ClearRun()
+    {
+        // Subtract all offers and picks from this run
+        foreach (string cardId in OfferedThisRun)
+        {
+            if (Stats.TryGetValue(cardId, out var stats))
+                stats.Offered = System.Math.Max(0, stats.Offered - 1);
+        }
+        foreach (string cardId in PickedThisRun)
+        {
+            if (Stats.TryGetValue(cardId, out var stats))
+                stats.Picked = System.Math.Max(0, stats.Picked - 1);
+        }
+        PickedThisRun.Clear();
+        OfferedThisRun.Clear();
         Save();
     }
 }
