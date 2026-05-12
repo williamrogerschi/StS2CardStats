@@ -10,6 +10,7 @@ public static class CardPickPatch
 {
     public static void Postfix(NCardHolder cardHolder)
     {
+        if (StatsTracker.IsMultiplayerRun()) return;
         var cardModel = cardHolder.CardModel;
         if (cardModel != null)
         {

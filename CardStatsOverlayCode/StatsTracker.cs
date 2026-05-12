@@ -39,6 +39,23 @@ public static class StatsTracker
     private static HashSet<string> PickedThisRun = new();
     private static List<string> OfferedThisRun = new();
 
+    public static bool IsMultiplayerRun()
+    {
+        try
+        {
+            var manager = MegaCrit.Sts2.Core.Runs.RunManager.Instance;
+            if (manager == null) return false;
+            var state = typeof(MegaCrit.Sts2.Core.Runs.RunManager)
+                .GetProperty("State", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                ?.GetValue(manager) as MegaCrit.Sts2.Core.Runs.RunState;
+            return state?.Players?.Count > 1;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
     public static void Load()
     {
         Stats = new();
@@ -142,7 +159,6 @@ public static class StatsTracker
 
     public static void ClearRun()
     {
-        // Subtract all offers and picks from this run
         foreach (string cardId in OfferedThisRun)
         {
             if (Stats.TryGetValue(cardId, out var stats))

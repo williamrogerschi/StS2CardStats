@@ -10,6 +10,13 @@ public static class RunEndPatch
 {
     public static void Postfix(RunState runState, SerializableRun serializableRun)
     {
+        // Skip multiplayer runs
+        if (serializableRun.Players.Count > 1)
+        {
+            StatsTracker.ClearRun();
+            return;
+        }
+
         var history = RunManager.Instance?.History;
         if (history?.WasAbandoned ?? false)
         {
