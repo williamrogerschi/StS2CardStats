@@ -1,6 +1,7 @@
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Nodes.Cards.Holders;
 using MegaCrit.Sts2.Core.Nodes.Screens.CardSelection;
+using Godot;
 
 namespace CardStatsOverlay.CardStatsOverlayCode.Patches;
 
@@ -12,7 +13,9 @@ public static class CardPickPatch
         var cardModel = cardHolder.CardModel;
         if (cardModel != null)
         {
-            StatsTracker.OnCardPicked("CARD." + cardModel.Id.Entry);
+            string cardId = "CARD." + cardModel.Id.Entry;
+            StatsTracker.OnCardPicked(cardId);
+            GD.Print($"[CardStatsOverlay] DRAFT picked: {cardId}");
         }
     }
 }
