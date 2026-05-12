@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CardStatsOverlay", "CardStatsOverlay.csproj", "{C3B1AB31-E457-19AC-C146-37E0A62F589B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C3B1AB31-E457-19AC-C146-37E0A62F589B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3B1AB31-E457-19AC-C146-37E0A62F589B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3B1AB31-E457-19AC-C146-37E0A62F589B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3B1AB31-E457-19AC-C146-37E0A62F589B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7AABD292-C2EA-4A12-AE2E-EE5639A8D0D1}
+	EndGlobalSection
+EndGlobal
