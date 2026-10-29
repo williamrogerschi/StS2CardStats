@@ -11,6 +11,7 @@ public static class ProfileInitPatch
     {
         GD.Print($"[CardStatsOverlay] Profile initialized: {SaveManager.Instance?.CurrentProfileId}");
         StatsTracker.Load();
+        Mastery.LogSummary();
     }
 }
 
@@ -21,5 +22,6 @@ public static class ProfileSwitchPatch
     {
         GD.Print($"[CardStatsOverlay] Profile switched to: {SaveManager.Instance?.CurrentProfileId}");
         StatsTracker.Load();
+        Mastery.LogSummary();
     }
 }
