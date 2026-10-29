@@ -3,12 +3,12 @@ using MegaCrit.Sts2.Core.Saves;
 
 namespace CardStatsOverlay.CardStatsOverlayCode.Patches;
 
-[HarmonyPatch(typeof(UserDataPathProvider), nameof(UserDataPathProvider.GetProfileDir))]
+[HarmonyPatch(typeof(UserDataPathProvider), nameof(UserDataPathProvider.GetAccountDir))]
 public static class UnifiedSavePathPatch
 {
-    public static bool Prefix(int profileId, ref string __result)
+    public static bool Prefix(ref string __result)
     {
-        __result = $"profile{profileId}";
+        __result = "";
         return false;
     }
 }
